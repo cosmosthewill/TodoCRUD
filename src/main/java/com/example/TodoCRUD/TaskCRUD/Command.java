@@ -1,4 +1,4 @@
-package com.example.TodoCRUD;
+package com.example.TodoCRUD.TaskCRUD;
 
 import org.springframework.http.ResponseEntity;
 

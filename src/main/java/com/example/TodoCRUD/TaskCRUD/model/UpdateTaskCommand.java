@@ -1,4 +1,4 @@
-package com.example.TodoCRUD.model;
+package com.example.TodoCRUD.TaskCRUD.model;
 
 import lombok.Data;
 
