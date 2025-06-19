@@ -35,7 +35,7 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getTasks() {
+    public ResponseEntity<List<TaskDTO>> getTasks() {
         return getTasksService.execute(null);
     }
 
@@ -45,7 +45,7 @@ public class TaskController {
     }
 
     @PutMapping("/update_task/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Integer id, @RequestBody Task updateTask) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Integer id, @RequestBody Task updateTask) {
         return updateTaskService.execute(new UpdateTaskCommand(id, updateTask));
     }
     

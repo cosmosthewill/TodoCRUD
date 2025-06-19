@@ -2,9 +2,11 @@ package com.example.TodoCRUD.TaskCRUD.service;
 
 import com.example.TodoCRUD.TaskCRUD.Command;
 import com.example.TodoCRUD.TaskCRUD.TaskRepository;
+import com.example.TodoCRUD.TaskCRUD.model.TaskDTO;
 import com.example.TodoCRUD.TaskCRUD.model.TaskStatus;
 import com.example.TodoCRUD.TaskCRUD.model.UpdateTaskCommand;
 import com.example.TodoCRUD.TaskCRUD.model.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,9 +16,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UpdateTaskService implements Command<UpdateTaskCommand, Task> {
+public class UpdateTaskService implements Command<UpdateTaskCommand, TaskDTO> {
 
     private final TaskRepository taskRepository;
+    @Autowired
+    private UniqueCategory uniqueCategory;
+
     public UpdateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
@@ -28,8 +33,49 @@ public class UpdateTaskService implements Command<UpdateTaskCommand, Task> {
         taskRepository.save(task);
     }
 
+    public void UpdateTask (Task task, UpdateTaskCommand taskCommand, String userName) {
+        Task incomingTask = taskCommand.getTask();
+
+        // title
+        if (incomingTask.getTitle() != null) {
+            task.setTitle(incomingTask.getTitle());
+        }
+
+        // description
+         if (incomingTask.getDescription() != null) {
+            task.setDescription(incomingTask.getDescription());
+        }
+        // status
+
+        if (incomingTask.getStatus() != null) {
+            task.setStatus(incomingTask.getStatus());
+        }
+
+        // deadline
+        if (incomingTask.getDeadline() != null) {
+            task.setDeadline(incomingTask.getDeadline());
+        }
+
+        // category only owner can set or update category
+        if (incomingTask.getOptional_category() != null) {
+            if(uniqueCategory.validateCategory(userName, incomingTask.getOptional_category(), taskCommand.getId())) {
+                task.setOptional_category(incomingTask.getOptional_category());
+            } else {
+                throw new RuntimeException("Category already exists for user: " + userName);
+            }
+        }
+        //remind time
+        if (incomingTask.getRemindTime() != null) {
+            task.setRemindTime(incomingTask.getRemindTime());
+        }
+        //remind again
+        if (incomingTask.getRemindAgain() != null) {
+            task.setRemindAgain(incomingTask.getRemindAgain());
+        }
+
+    }
     @Override
-    public ResponseEntity<Task> execute(UpdateTaskCommand taskCommand) {
+    public ResponseEntity<TaskDTO> execute(UpdateTaskCommand taskCommand) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
 
@@ -43,33 +89,10 @@ public class UpdateTaskService implements Command<UpdateTaskCommand, Task> {
 
         if(updateTask.isPresent()) {
             Task task = updateTask.get();
-
-            //task.setId(taskCommand.getTask().getId());
-            Task incomingTask = taskCommand.getTask();
-
-            if (incomingTask.getTitle() != null) {
-                task.setTitle(incomingTask.getTitle());
-            }
-
-            if (incomingTask.getDescription() != null) {
-                task.setDescription(incomingTask.getDescription());
-            }
-
-            if (incomingTask.getStatus() != null) {
-                task.setStatus(incomingTask.getStatus());
-            }
-
-            if (incomingTask.getDeadline() != null) {
-                task.setDeadline(incomingTask.getDeadline());
-            }
-
-            if (incomingTask.getOptional_category() != null) {
-                task.setOptional_category(incomingTask.getOptional_category());
-            }
-
+            UpdateTask(task, taskCommand, userName);
             //Save the updated task back to the repository
             taskRepository.save(task);
-            return ResponseEntity.ok(task);
+            return ResponseEntity.ok(new TaskDTO(task));
         } else {
             throw new RuntimeException("Task not found with id: " + taskCommand.getId());
         }

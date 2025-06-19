@@ -23,7 +23,7 @@ public class SearchTaskService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         //System.out.println(userName + "," + status + "," + category);
-        List<Task> filteredTask = taskRepository.findByUserName(userName)
+        List<Task> filteredTask = taskRepository.findByOwnerUserName(userName)
                 .stream()
                 .filter(task ->
                         (status == null || task.getStatus().name().toLowerCase().contains(status.toLowerCase())) &&

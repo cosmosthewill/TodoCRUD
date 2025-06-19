@@ -5,13 +5,12 @@ import com.example.TodoCRUD.TaskCRUD.model.Task;
 import com.example.TodoCRUD.User.Model.UserAccount;
 import com.example.TodoCRUD.User.Model.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SharedTasksService {
@@ -24,9 +23,12 @@ public class SharedTasksService {
     }
 
     public ResponseEntity<List<String>> addSharedTasks(Integer taskId, List<String> userNames) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String ownerName = authentication.getName();
+
         Task sharedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskId));
-        //System.out.println(userNames);
+        if(!Objects.equals(sharedTask.getOwner().getUserName(), ownerName)) throw new RuntimeException("You are not the owner of this task.");
         for (String userName : userNames) {
             UserAccount user = userRepository.findByUserName(userName)
                     .orElseThrow(() -> new RuntimeException("User not found with username: " + userName));
@@ -41,8 +43,13 @@ public class SharedTasksService {
     }
     
     public ResponseEntity<String> removeSharedTasks(Integer taskId, List<String> userNames) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String ownerName = authentication.getName();
+
         Task sharedTask = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskId));
+        
+        if(!Objects.equals(sharedTask.getOwner().getUserName(), ownerName)) throw new RuntimeException("You are not the owner of this task.");
         List<UserAccount> usersToRemove = new ArrayList<>();
         for (String userName : userNames) {
             UserAccount user = userRepository.findByUserName(userName)

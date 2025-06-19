@@ -3,6 +3,7 @@ package com.example.TodoCRUD.TaskCRUD.model;
 import com.example.TodoCRUD.User.Model.UserAccount;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
@@ -52,4 +53,11 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private TaskStatus status;
+
+    @Column(name = "remind_time")
+    private Integer remindTime = 6;
+
+    @Column(name = "remind_again")
+    private Boolean remindAgain = true;
+
 }

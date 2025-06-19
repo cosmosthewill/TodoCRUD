@@ -23,7 +23,7 @@ public class DeleteTaskService implements Command<Integer, String> {
     public ResponseEntity<String> execute(Integer id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        List<Task> userTasks = taskRepository.findByUserName(userName);
+        List<Task> userTasks = taskRepository.findByOwnerUserName(userName);
         if(userTasks.isEmpty()) {
             return ResponseEntity.status(404).body("No tasks found for user: " + userName);
         }

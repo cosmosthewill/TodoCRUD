@@ -1,9 +1,11 @@
 package com.example.TodoCRUD.TaskCRUD.model;
 
+import com.example.TodoCRUD.User.Model.UserAccount;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class TaskDTO {
@@ -14,6 +16,9 @@ public class TaskDTO {
     private LocalDateTime deadline;
     private String optional_category;
     private TaskStatus status;
+    private List<String> sharedWith;
+    private Integer remindTime;
+    private Boolean remindAgain;
 
     public TaskDTO(Task task) {
         this.id = task.getId();
@@ -22,7 +27,11 @@ public class TaskDTO {
         this.deadline = task.getDeadline();
         this.optional_category = task.getOptional_category();
         this.status = task.getStatus();
-
+        this.sharedWith = task.getSharedWith().stream()
+                .map(UserAccount::getUserName)
+                .toList();
+        this.remindTime = task.getRemindTime();
+        this.remindAgain = task.getRemindAgain();
     }
     public TaskDTO() {
         // Default constructor
