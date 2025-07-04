@@ -1,0 +1,465 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.12
+externalDocs:
+  description: Find out more about Swagger
+  url: https://swagger.io
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: task
+    description: Everything about your tasks
+  - name: user
+    description: Operations about user
+paths:
+  /user/register:
+    post:
+      tags:
+        - user
+      summary: Create user.
+      description: This can only be done by the non-logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+          content:
+            string:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /user/update:
+    put:
+      tags:
+        - user
+      summary: Update user info.
+      description: Update user info.
+      operationId: updateUserInfo
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: '#/components/schemas/UserDTO'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/all:
+    get:
+      tags:
+        - task
+      summary: Get all tasks.
+      description: Get all tasks from user include shared tasks.
+      operationId: getAllTasks
+      security:
+        - basicAuth: [ ]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '204':
+          description: No tasks found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/{taskId}:
+    get:
+      tags:
+        - task
+      summary: Get task by ID.
+      description: Get task by ID.
+      operationId: getTaskById
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of task to return
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/create:
+    post:
+      tags:
+        - task
+      summary: Create a new task.
+      description: Create a new task for the user.
+      operationId: createTask
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        description: Created task object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDTO'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Category existed
+          content:
+            string:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/search:
+    get:
+      tags:
+        - task
+      summary: Search tasks.
+      description: Search tasks by title or description.
+      operationId: searchTasks
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Status of the tasks to search for
+          schema:
+            type: string
+            enum: [ PENDING, IN_PROGRESS, OVERDUE, COMPLETED ]
+            example: PENDING
+        - name: category
+          in: query
+          required: false
+          description: Category of the tasks to search for
+          schema:
+            type: string
+            example: Optional category
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDTO'
+        '204':
+          description: No tasks found matching the query
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/update/{taskId}:
+    put:
+      tags:
+        - task
+      summary: Update an existing task.
+      description: Update an existing task by ID.
+      operationId: updateTask
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of task to update
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated task object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+        '404':
+          description: Task not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/delete/{taskId}:
+    delete:
+      tags:
+        - task
+      summary: Delete a task.
+      description: Delete a task by ID.
+      operationId: deleteTask
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of task to delete
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Task deleted successfully
+        '404':
+          description: Task not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /task/shared/{taskId}:
+    post:
+      tags:
+        - task
+      summary: Share a task with another user.
+      description: Share a task with another user by username.
+      operationId: shareTask
+      security:
+        - basicAuth: [ ]
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of task to share
+          schema:
+            type: integer
+            format: int64
+        - name: userNames
+          in: query
+          required: true
+          description: Username of the user to share the task with
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              example: testuser123
+      responses:
+        '200':
+          description: Task shared successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task or user not found
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        owner:
+          $ref: '#/components/schemas/User'
+        sharedWith:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        title:
+          type: string
+          example: Task title
+        description:
+          type: string
+          example: Task description
+        deadline:
+          type: string
+          format: date-time
+          example: '2000-31-12 12:00:00'
+        optional_category:
+          type: string
+          example: Optional category
+        status:
+          type: string
+          enum: [ PENDING, IN_PROGRESS, OVERDUE, COMPLETED ]
+          example: PENDING
+        remindTime:
+          type: integer
+          example: '6'
+        remindAgain:
+          type: boolean
+          example: true
+      xml:
+        name: task
+    TaskDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: Task title
+        description:
+          type: string
+          example: Task description
+        deadline:
+          type: string
+          format: date-time
+          example: '2000-31-12 12:00:00'
+        optional_category:
+          type: string
+          example: Optional category
+        status:
+          type: string
+          enum: [ PENDING, IN_PROGRESS, OVERDUE, COMPLETED ]
+          example: PENDING
+        sharedWith:
+          type: array
+          items:
+            type: string
+            example: testuser123
+            xml:
+              name: userName
+        remindTime:
+          type: integer
+          example: '6'
+        remindAgain:
+          type: boolean
+          example: true
+
+    User:
+      type: object
+      properties:
+        userName:
+          type: string
+          example: testuser123
+        email:
+          type: string
+          format: email
+          example: abc@gmail.com
+        password:
+          type: string
+          format: password
+          example: test1234
+      xml:
+        name: user
+    UserDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          example: testuser@123
+        password:
+          type: string
+          example: test1234
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

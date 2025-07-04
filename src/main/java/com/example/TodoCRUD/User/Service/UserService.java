@@ -1,5 +1,6 @@
 package com.example.TodoCRUD.User.Service;
 
+import com.example.TodoCRUD.ExceptionHandler.ApiException;
 import com.example.TodoCRUD.User.Model.UserAccount;
 import com.example.TodoCRUD.User.Model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class UserService {
         String userName = authentication.getName();
 
         UserAccount user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + userName));
+                .orElseThrow(() -> new ApiException("User not found with username: " + userName, 404));
         //saved
-        if (!isValidEmail(email)) throw new RuntimeException("Invalid email format");
+        if (!isValidEmail(email)) throw new ApiException("Invalid email format", 400);
         user.setEmail(email);
         if (newPassword != null && !newPassword.isEmpty()) {
             user.setPassword(passwordEncoder.encode(newPassword));
@@ -38,7 +39,7 @@ public class UserService {
     }
 
     public ResponseEntity<UserAccount> createAccount(UserAccount newUser) {
-        if (!isValidEmail(newUser.getEmail())) throw new RuntimeException("Invalid email format");
+        if (!isValidEmail(newUser.getEmail())) throw new ApiException("Invalid email format", 400);
         if (userRepository.findByUserName(newUser.getUserName()).isEmpty()) {
             newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             UserAccount savedUser = userRepository.save(newUser);

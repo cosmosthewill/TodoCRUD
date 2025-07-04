@@ -3,14 +3,11 @@ package com.example.TodoCRUD.TaskCRUD.model;
 import com.example.TodoCRUD.User.Model.UserAccount;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Entity

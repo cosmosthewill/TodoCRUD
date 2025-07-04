@@ -6,10 +6,12 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class TaskDTO {
     private Integer id;
+    private String owner;
     private String title;
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -29,10 +31,12 @@ public class TaskDTO {
         this.status = task.getStatus();
         this.sharedWith = task.getSharedWith().stream()
                 .map(UserAccount::getUserName)
-                .toList();
+                .collect(Collectors.toList());
         this.remindTime = task.getRemindTime();
         this.remindAgain = task.getRemindAgain();
+        this.owner = task.getOwner().getUserName();
     }
+
     public TaskDTO() {
         // Default constructor
     }
